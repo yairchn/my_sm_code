@@ -9,12 +9,6 @@ implicit none
 real *8 rdx,rdy,rdz
 integer i,j,k,kb,jb,ib
 real du(nx,ny,nz,3)
-real wrk
-
-wrk=1.
-if(dorave) then
-   wrk=ravefactor*ravefactor
-endif
 
 rdx=1./dx
 rdy=1./dy
@@ -43,7 +37,7 @@ do k=1,nzm
    ib=i-1 
    dudt(i,j,k,na)=dudt(i,j,k,na)-(p(i,j,k)-p(ib,j,k))*rdx	
    dvdt(i,j,k,na)=dvdt(i,j,k,na)-(p(i,j,k)-p(i,jb,k))*rdy	
-   dwdt(i,j,k,na)=dwdt(i,j,k,na)-(p(i,j,k)-p(i,j,kb))*rdz/wrk
+   dwdt(i,j,k,na)=dwdt(i,j,k,na)-(p(i,j,k)-p(i,j,kb))*rdz	
   end do ! i
  end do ! j	
 end do ! k

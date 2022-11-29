@@ -46,8 +46,6 @@ if(LES) then
   end do
 else
   do k=1,nzm
-     grdf_x(k) = min(16.,(dx/ravefactor)**2/(adz(k)*dz)**2)
-     grdf_y(k) = min(16.,(dy/ravefactor)**2/(adz(k)*dz)**2)
      grdf_x(k) = 1.
      grdf_y(k) = 1.
      grdf_z(k) = 1.

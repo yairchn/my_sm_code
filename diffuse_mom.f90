@@ -3,14 +3,9 @@ subroutine diffuse_mom
 !  Interface to the diffusion routines
 
 use vars
-use mse          ! peters
 implicit none
 integer i,j,k
 real du(nx,ny,nz,3)
-
-real dtu_old(nxp1,ny,nzm), dtv_old(nx,nyp1,nzm)  ! peters
-dtu_old = dudt(:,:,:,na)           ! peters
-dtv_old = dvdt(:,:,:,na)           ! peters
 
 if(dostatis) then
 	
@@ -31,13 +26,6 @@ if(RUN3D) then
 else
    call diffuse_mom2D()
 endif
-
-
-! update the diffusive mom fluxes
-if(isallocateMSE)  then
-  dtu_diff(:,:,:,na) = dudt(:,:,:,na) - dtu_old    ! peters
-  dtv_diff(:,:,:,na) = dvdt(:,:,:,na) - dtv_old    ! peters
-end if
 
 if(dostatis) then
 	

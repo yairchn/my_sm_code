@@ -1,9 +1,8 @@
 	subroutine printout()
 
 	use vars
+        use tracers
 	use params
-        use simple_land
-        use simple_ocean, only : doevolveSSTforcing
 	implicit none
 	
 	write(6,*)
@@ -15,10 +14,8 @@
 	  write(6,*)'Restart. nrestart=',nrestart
 	endif
 	write(6,*)'Day:',day
-	write(6,*)'Latitude:',latitude0
-	write(6,*)'Longitude:',longitude0
 
-        if((.not.(OCEAN.or.LAND)) .and. (.not.dolandseamask)) then
+	if(.not.(OCEAN.or.LAND)) then
 	 write(6,*) 'Neither OCEAN nor LAND are set. Exitting...'
 	 call task_abort()
 	endif
@@ -101,6 +98,8 @@
         end if
 	write(6,*) 'larger-scale subsidence is on:',dosubsidence
 	write(6,*) 'larger-scale tendency is on:',dolargescale
+        write(6,*) 'Latitude:',latitude0
+        write(6,*) 'Longitude:',longitude0
 	write(6,*) 'coriolis force is allowed:',docoriolis	
 	if(docoriolis) then
 		write(6,*) '   Coriolis parameter (1/s):',fcor
@@ -181,17 +180,16 @@
         print*,'dodynamicocean =',dodynamicocean
 	print*,'doxy = ', doxy
 
-        print*,'douwpbl', douwpbl
-        print*,'douwcu', douwcu
-        print*,'uwpbl_ndiv', uwpbl_ndiv
-        print*,'uwcu_ndiv', uwcu_ndiv
-
-        print*,'doevolveSSTforcing=',doevolveSSTforcing
-        print*,'dolandseamask=',dolandseamask
-        print*,'dointeractiveland=',dointeractiveland
-        print*,'doxysurf_rough=',doxysurf_rough
-        print*,'doxysoil_wet=',doxysoil_wet
-        print*,'dosurfacefix=',dosurfacefix
+        print*,'dotracers =',dotracers
+        if(dotracers) then
+           if(ntracers.eq.0) then
+             print*,'dotracers is set to .true., yet ntracers = 0. Aborting ...'
+             call task_abort()
+           end if
+           print*,ntracers, ' tracers are included'
+           print*,'Tracer names:',tracername(1:ntracers)
+        end if
+        
 	return
 	end
 

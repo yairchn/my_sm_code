@@ -80,7 +80,7 @@ do k=1,nzm
   coef2 = exp(0.025*(tabs0(k) - 273.15))                        
   accrgi(k) =  coef1 * coef2 * egicoef
   accrgc(k) =  coef1 * egccoef 
-
+          
 ! evaporation of graupel:
  
   coef1  =(lsub/(tabs0(k)*rv)-1.)*lsub/(therco*rrr1*tabs0(k))
@@ -109,26 +109,7 @@ do k=1,nzm
 
 end do
 
-!kzm modify evaporation rates
- evaps1=evaps1*evapfactor
- evaps2=evaps2*evapfactor
- evapg1=evapg1*evapfactor
- evapg2=evapg2*evapfactor
- evapr1=evapr1*evapfactor
- evapr2=evapr2*evapfactor
-
-
-if(donoevap) then
-        !kzm set evaporation of precip to 0
- evaps1=0.
- evaps2=0.
- evapg1=0.
- evapg2=0.
- evapr1=0.
- evapr2=0.
-endif
-
-  
+           
 end subroutine precip_init
 
 

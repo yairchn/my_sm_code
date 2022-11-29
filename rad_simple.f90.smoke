@@ -1,0 +1,41 @@
+
+subroutine rad_simple
+ 	
+!	Simple Interactive Radiation
+
+use vars
+use params
+implicit none
+	
+real lwp(nx*ny), fr(nx*ny), f0, xk, fr1, dtrad, coef, coef1
+integer i,k
+	
+if(.not.dolongwave) return
+
+f0 = 60 ! W/m2
+xk = 20. 
+	
+do i=1,nx*ny
+  fr(i) = f0
+  lwp(i) = 0.
+end do
+	
+radlwdn(nz) = f0 * nx*ny
+	
+do k = nzm,1,-1
+  coef1 = rho(k)*dz*adz(k)
+  coef = 1./(coef1 * cp)
+  do i=1,nx*ny
+    lwp(i) = lwp(i) + q(i,1,k) * coef1
+    fr1 = f0 * exp(-xk * lwp(i))
+    dtrad = -(fr(i) - fr1) * coef
+    fr(i) = fr1
+    t(i,1,k) = t(i,1,k) + dtrad * dtn
+    radlwdn(k) = radlwdn(k) + fr1
+    radqrlw(k) = radqrlw(k) + dtrad
+  end do
+end do
+	
+end 
+
+

@@ -125,7 +125,7 @@ subroutine crm_isccp (fq_isccp_s1, totalcldarea, meantaucld, meanptop, lowcldare
    real t0_down(1, pver)  !
    real cld_down  (1,ncolmax, pver)  !cloud cover
    real  rel(pver),rei(pver),irei(pver)
-   real  massl, cliqwp,cicewp, qnn, qcc, qii, qss
+   real  massl, cliqwp,cicewp, qnn, qcc, qii
    real emis_down(1,ncolmax, pver)  ! Cloud longwave emissivity
    real emiswv_down(1, pver)  ! water vapor longwave emissivity
    real cltot  ! Total cloud amount in grid cell
@@ -152,8 +152,6 @@ subroutine crm_isccp (fq_isccp_s1, totalcldarea, meantaucld, meanptop, lowcldare
    real cldmin    ! the value taken from radcswmx.F90, note: cldmin much less than cldmin from what on cldnrh
    real cldeps    ! the value taken from radcswmx.F90
    integer itaunpres,it,ip
-   real, parameter :: qthresh = 1.e-9 ! minimum cld mixing ratio included
-   real, parameter :: eps = 1.e-20
 
    cldmin = 1.0e-20
 !   cldmin = 1.0e-80_r8
@@ -200,7 +198,6 @@ subroutine crm_isccp (fq_isccp_s1, totalcldarea, meantaucld, meanptop, lowcldare
     end do
 
 ! Get effective radii:
-    landm = 0.
     if (.not.OCEAN) landm = 1.
     tmp = 0.
     tmp(2) = 100.*pres0
@@ -217,39 +214,10 @@ subroutine crm_isccp (fq_isccp_s1, totalcldarea, meantaucld, meanptop, lowcldare
           t_down(1,ii,k)=tabs(i,j,m)
           q_down(1,ii,k)=q(i,j,m)-qn(i,j,m)
           qnn = qn(i,j,m)
-          if(.not.dokruegermicro) then
           qcc = qn(i,j,m)*omegan(t_down(1,ii,k))
           qii = qn(i,j,m)*(1.-omegan(t_down(1,ii,k)))
-          qss = qp(i,j,m)*(1.-omegap(t_down(1,ii,k)))*(1.-omegag(t_down(1,ii,k)))
-          elseif(dokruegermicro) then
-             qcc = qc(i,j,m)
-             qii = qi(i,j,m)
-             qss = qs(i,j,m)
-          end if
-
-          ! initialize cloud fraction, optical depth and emissivity to zero
-          cld_down(1,ii,k) = 0.
-          tau(1,ii,k) = 0.0
-          emis_down(1,ii,k) = 0.
-
-          ! If cloud is present, set non-zero values for cld, tau, emis
-          if (dokruegereffectiveradii) then
-             if (qcc+qii+qss.gt.qthresh) then
-                ! re-define effective radii
-                rel(k) = 10.
-                rei(k) = 25.*(qii+qss+eps)/(qii+qss/3.+eps)
-                irei(k) = 1./rei(k)
-                ! compute cloud thickness/emissivity
-                cld_down(1,ii,k) = 0.99
-                massl = 1000.*(pint(1,k+1)-pint(1,k))/ggr
-                cliqwp = qcc*massl
-                cicewp = (qii+qss)*massl
-                tau(1,ii,k) = (abarl + bbarl/rel(k)) * cliqwp + &
-                     (abari + bbari/rei(k)) * cicewp
-                emis_down(1,ii,k) =1.-exp(-(0.15*cliqwp &
-                     +1.66*(0.005+irei(k))*cicewp))
-             end if
-          elseif(qnn.gt.qthresh) then                
+          if(qnn.gt.1.e-9) then
+    !      if(cld_down(1,ii,k) >= cldmin .and. cld_down(1,ii,k) >= cldeps) then
              cld_down(1,ii,k) = 0.99
              massl = 1000.*(pint(1,k+1)-pint(1,k))/ggr
              cliqwp = qcc*massl
@@ -258,7 +226,11 @@ subroutine crm_isccp (fq_isccp_s1, totalcldarea, meantaucld, meanptop, lowcldare
                            (abari + bbari/rei(k)) * cicewp
              emis_down(1,ii,k) =1.-exp(-(0.15*cliqwp &
                                         +1.66*(0.005+irei(k))*cicewp))
-          end if
+          else
+             cld_down(1,ii,k) = 0.
+             tau(1,ii,k) = 0.0
+             emis_down(1,ii,k) = 0.
+          endif
        end do
        end do
     end do

@@ -3,6 +3,7 @@
 subroutine init()
 
   use vars
+  use tracers
 
   implicit none
 
@@ -33,6 +34,12 @@ subroutine init()
   daysnd = 0.
   nsnd = 0
 
+  trwle = 0.
+  trwsb = 0.
+  tradv = 0.
+  trdiff = 0.
+  trphys = 0.
+
   dqls = 0.
   dtls = 0.
   ugls = 0.
@@ -53,11 +60,8 @@ subroutine init()
   tausfc = 0.
   nsfc = 0
 
-  gamt0 = 0.  
+  gamt0 = 0.
   gamq0 = 0.
-  ttend_wave = 0.
-  qtend_wave = 0.
-
 end subroutine init
 
 

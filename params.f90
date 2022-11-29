@@ -72,9 +72,6 @@ real, parameter :: nzeros = 3.e6   ! Intersept coeff. for snow
 real, parameter :: nzerog = 4.e6   ! Intersept coeff. for graupel
 !eal, parameter :: nzerog = 4.e4   ! hail - Lin 1993 
 
-! Cloud droplet distribution properties, used in sedimentation scheme.
-real, parameter :: Nc0 = 65. ! cloud droplet concentration [cm^{-3}]
-
 real, parameter :: qp_threshold = 1.e-8 ! minimal rain/snow water content
 
 
@@ -131,32 +128,5 @@ real evapg1(nzm),evapg2(nzm)
             
 real a_bg, a_pr, a_gr 
 
-!==========================================================================
-! UW ADDITIONS
-
-! Krueger microphysics additions
-real, parameter :: ttfrz = 233.1
-real, parameter :: tice = 273.16
-real, parameter :: a_bgkru = 1./(tice-ttfrz)
-
-real vconr, vcons, vcong ! fall speed constants for Kreuger microphysics
-real, parameter :: vexpr = 0.2 ! exponents for Kreugers fall speed formulas
-real, parameter :: vexpg = 0.125
-real, parameter :: vexps = 0.0625
-real, parameter :: vmaxr = 10. ! maximum precipitation velocities
-real, parameter :: vmaxg = 20.
-
-! Tracer nudging timescales.
-
-real  itauo3	     ! inverse of nudging-to-large-scaler-O3-profile time-scale
-real  itautrz	     ! inverse of the decay time of trz
-real  itautrx	     ! inverse of the decay time of trx
-real  itautry	     ! inverse of the decay time of try
-real  itautrzz	     ! inverse of the decay time of trzz
-
-real, parameter :: vk = 0.4 ! von Karman constant (added by cw 2/16/06)
-
-! END UW ADDITIONS
-!==========================================================================
 
 end module params

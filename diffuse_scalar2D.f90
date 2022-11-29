@@ -1,12 +1,11 @@
-subroutine diffuse_scalar2D (field,fluxb,fluxt,tkh_xy,tkh_z,rho,rhow,flux)
+subroutine diffuse_scalar2D (field,fluxb,fluxt,tkh,rho,rhow,flux)
 
 use grid
 implicit none
 	
 ! input
 real field(dimx1_s:dimx2_s, dimy1_s:dimy2_s, nzm)	! scalar
-real tkh_xy(0:nxp1, 1-YES3D:nyp1, nzm)	! eddy conductivity
-real tkh_z(0:nxp1, 1-YES3D:nyp1, nzm)	! eddy conductivity
+real tkh(0:nxp1, 1-YES3D:nyp1, nzm)	! eddy conductivity
 real fluxb(nx,ny)		! bottom flux
 real fluxt(nx,ny)		! top flux
 real rho(nzm)
@@ -56,8 +55,8 @@ do k=1,nzm
 
   do i=0,nx
     ic=i+1
-    tkx=rdx5*(tkh_xy(i,j,k)+tkh_xy(ic,j,k)) 	
-    flx(i,j,k)=-tkx*(field(ic,j,k)-field(i,j,k))*ravefactor
+    tkx=rdx5*(tkh(i,j,k)+tkh(ic,j,k)) 	
+    flx(i,j,k)=-tkx*(field(ic,j,k)-field(i,j,k))
   end do 
   do i=1,nx
     ib=i-1
@@ -76,35 +75,17 @@ do i=1,nx
    flux(1) = flux(1) + flx(i,j,0)
 end do
 
-if(LES) then !bloss  use geometric average of tkh in vertical: sqrt(tkh*tkhc)
-
- do k=1,nzm-1
-  kc=k+1	
-  flux(kc)=0. 
-  rhoi = rhow(kc)/adzw(kc)
-  rdz5=rdz2 * grdf_z(k)
-  do i=1,nx
-     tkz=rdz5*sqrt(tkh_z(i,j,k)*tkh_z(i,j,kc))
-     flx(i,j,k)=-tkz*(field(i,j,kc)-field(i,j,k))*rhoi/ravefactor
-     flux(kc) = flux(kc) + flx(i,j,k)
-  end do
+do k=1,nzm-1
+ kc=k+1	
+ flux(kc)=0. 
+ rhoi = rhow(kc)/adzw(kc)
+ rdz5=0.5*rdz2 * grdf_z(k)
+ do i=1,nx
+    tkz=rdz5*(tkh(i,j,k)+tkh(i,j,kc))
+    flx(i,j,k)=-tkz*(field(i,j,kc)-field(i,j,k))*rhoi
+    flux(kc) = flux(kc) + flx(i,j,k)
  end do
-
-else !bloss  use simple average of tkh in vertical: (tkh+tkhc)/2
-
- do k=1,nzm-1
-  kc=k+1	
-  flux(kc)=0. 
-  rhoi = rhow(kc)/adzw(kc)
-  rdz5=0.5*rdz2 * grdf_z(k)
-  do i=1,nx
-     tkz=rdz5*(tkh_z(i,j,k)+tkh_z(i,j,kc))
-     flx(i,j,k)=-tkz*(field(i,j,kc)-field(i,j,k))*rhoi/ravefactor
-     flux(kc) = flux(kc) + flx(i,j,k)
-  end do
- end do
-
-end if
+end do
 
 do k=1,nzm
  kb=k-1

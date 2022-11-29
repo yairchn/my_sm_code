@@ -16,15 +16,9 @@ do k=1,nzm
  do j=1,ny
   do i=1,nx
     rrr=1.-2.*ranf_()
-!    rrr = 0.0
 
     if(k.le.5) then
       t(i,j,k)=t(i,j,k)+0.02*rrr*(6-k)
-    endif
-
-    !bloss  add noise in regions where cloud is present in initial condition
-    if(qc0(k)+qi0(k).gt.0.) then
-      t(i,j,k)=t(i,j,k)+0.1*rrr
     endif
 
     if(k.le.4.and..not.dosmagor) then

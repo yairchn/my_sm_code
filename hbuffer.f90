@@ -124,12 +124,13 @@ subroutine hbuf_init
 !       Read list of vertical profile names to store in file
 
 use grid, only: case, masterproc
+use tracers, only: tracers_hbuf_init
 
 implicit none
 character *8 nm
 character *80 def
 character *10 un
-integer stat,count,type,i
+integer stat,count,type,i,trcount
 integer lenstr
 external lenstr
 character*3 filestatus
@@ -167,25 +168,26 @@ if(stat.gt.0) then
 endif
 goto 333
 444    continue
+trcount=0
+if(dotracers) call tracers_hbuf_init(namelist,deflist,unitlist,status,average_type,count,trcount)
+hbuf_length = hbuf_length+trcount
 if(masterproc) then
          print *,'Number of statistics profiles:', hbuf_length
          print *,'Statistics profiles to save:'
-         print *,(namelist(i),i=1,hbuf_length)
+         write(*,'(8(a,3x))')(namelist(i),i=1,hbuf_length)
 
 ! make sure that the stat file doesn't exist if a new run to prevent
 ! accidental overwrite
 
   filestatus='old'
-  if(nrestart.eq.0.or.nrestart.eq.2) then
+  if(nrestart.eq.0.or.nrestart.eq.3) then
     filestatus='new'
   end if
-
 
   open (55,file='./'//case(1:lenstr(case))//'/'// &
                   case(1:lenstr(case))//'_'// &
                   caseid(1:lenstr(caseid))//'.stat', &
                   status=filestatus,form='unformatted')
-
   close(55)
 
 end if

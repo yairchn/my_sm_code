@@ -102,12 +102,6 @@ do while(.true.)
   do i=1,n
       read(77,*) zz(i),pp(i),tt(i),qq(i),uu(i),vv(i),ww(i)
   end do
-!kzm accelerate the tendencies 
-  tt=tt*sqrt(betafactor)
-  qq=qq*sqrt(betafactor)
-  ww=ww*sqrt(betafactor)
- 
-
   if(zz(2).gt.zz(1)) then
    zgrid=.true.
   else if(pp(2).lt.pp(1)) then
@@ -193,10 +187,6 @@ do while(.true.)
   do i=1,n
       read(77,*) pp(i),rad(i)
   end do
-
-  !kzm accelerate rad
-  rad=rad*sqrt(betafactor)
-
   if(pp(2).gt.pp(1)) then
    zgrid=.true.
   else if(pp(2).lt.pp(1)) then
@@ -285,12 +275,6 @@ end do
 if(masterproc)print*,'Surface Forcing interval (days):',daysfc(1),daysfc(nsfc)
 
 end if
-
-!kzm
-daysnd=daysnd/sqrt(betafactor)
-dayls=dayls/sqrt(betafactor)
-dayrfc=dayrfc/sqrt(betafactor)
-daysfc=daysfc/sqrt(betafactor)
 
 end
 

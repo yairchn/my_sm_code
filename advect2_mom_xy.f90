@@ -4,7 +4,6 @@ subroutine advect2_mom_xy
 !        momentum tendency due to 2nd-order-central horizontal advection
 
 use vars
-use mse          ! peters
 
 implicit none
 	
@@ -40,12 +39,6 @@ do k = 1,nzm
     dudt(i,j,k,na)  = dudt(i,j,k,na)  - (fu(i,j,k)-fu(ib,j,k))
     dvdt(i,j,k,na)  = dvdt(i,j,k,na)  - (fv(i,j,k)-fv(ib,j,k))
     dwdt(i,j,kc,na) = dwdt(i,j,kc,na)-irho*(fw(i,j,k)-fw(ib,j,k))
-
-    if(isallocateMSE) then
-      dtu_uu(i,j,k,na) = - (fu(i,j,k)-fu(ib,j,k))       ! peters
-      dtv_vu(i,j,k,na) = - (fv(i,j,k)-fv(ib,j,k))       ! peters
-    end if
-
   end do 
  end do 
 
@@ -65,12 +58,6 @@ do k = 1,nzm
    dudt(i,j,k,na) = dudt(i,j,k,na) - (fu(i,j,k) - fu(i,jb,k))
    dvdt(i,j,k,na) = dvdt(i,j,k,na) - (fv(i,j,k) - fv(i,jb,k))
    dwdt(i,j,kc,na)= dwdt(i,j,kc,na)-irho*(fw(i,j,k)-fw(i,jb,k))
-
-    if(isallocateMSE) then
-      dtu_uv(i,j,k,na) = - (fu(i,j,k) - fu(i,jb,k))        ! peters
-      dtv_vv(i,j,k,na) = - (fv(i,j,k) - fv(i,jb,k))        ! peters
-    end if
-
   end do
  end do 
  
@@ -98,12 +85,6 @@ do k = 1,nzm
     dudt(i,j,k,na)  = dudt(i,j,k,na)  - (fu(i,j,k)-fu(ib,j,k))
     dvdt(i,j,k,na)  = dvdt(i,j,k,na)  - (fv(i,j,k)-fv(ib,j,k))
     dwdt(i,j,kc,na) = dwdt(i,j,kc,na)-irho*(fw(i,j,k)-fw(ib,j,k))
-
-    if(isallocateMSE) then
-      dtu_uu(i,j,k,na) = - (fu(i,j,k)-fu(ib,j,k))    ! peters
-      dtv_vu(i,j,k,na) = - (fv(i,j,k)-fv(ib,j,k))    ! peters
-    end if
-
   end do 
 
 end do ! k

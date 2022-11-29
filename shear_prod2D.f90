@@ -10,10 +10,6 @@ real rdx0,rdx,rdx_up,rdx_dn
 real rdz,rdzw_up,rdzw_dn
 integer i,j,k,ib,ic,kb,kc
 
-!kzm, Nov. 26, 2006, scale to get the correct diffusion
-dx=dx/ravefactor
-w=w*ravefactor
-
 rdx0=1./dx 
 j=1
 
@@ -108,9 +104,6 @@ do i=1,nx
            (w(i ,j,k )-w(ib,j,k ))*rdx_dn )**2 )
 
 end do 
-!kzm, Nov. 26, 2006, scale back
-dx=dx*ravefactor
-w=w/ravefactor
 	
 end
 

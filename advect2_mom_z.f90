@@ -4,7 +4,6 @@ subroutine advect2_mom_z
 !       momentum tendency due to the 2nd-order-central vertical advection
 
 use vars
-use mse         ! peters
 
 implicit none
 
@@ -76,12 +75,6 @@ do k=1,nzm
    dudt(i,j,k,na)=dudt(i,j,k,na)-(fuz(i,j,kc)-fuz(i,j,k))*rhoi
    dvdt(i,j,k,na)=dvdt(i,j,k,na)-(fvz(i,j,kc)-fvz(i,j,k))*rhoi	 
    fwz(i,j,k)=dz25*(w(i,j,kc)*rhow(kc)+w(i,j,k)*rhow(k))*(w(i,j,kc)+w(i,j,k))
-
-   if(isallocateMSE) then
-     dtu_uw(i,j,k,na) = -(fuz(i,j,kc)-fuz(i,j,k))*rhoi  ! peters
-     dtv_vw(i,j,k,na) = -(fvz(i,j,kc)-fvz(i,j,k))*rhoi  ! peters
-   end if
-
   end do
  end do
 end do

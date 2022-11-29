@@ -11,11 +11,6 @@ real rdy0,rdy,rdy_up,rdy_dn
 real rdz,rdzw_up,rdzw_dn
 integer i,j,k,ib,ic,jb,jc,kb,kc
 
-!kzm, Nov. 26, 2006, scale to get the correct diffusion
-dx=dx/ravefactor
-dy=dy/ravefactor
-w=w*ravefactor
-
 rdx0=1./dx 
 rdy0=1./dy
 
@@ -116,6 +111,7 @@ do j=1,ny
    end do 
 end do
 	 
+	
 k=nzm
 kc=k+1
 kb=k-1
@@ -154,10 +150,6 @@ do j=1,ny
              (w(i ,j,k )-w(ib,j,k ))*rdx_dn )**2 )
   end do 
 end do
-!kzm, Nov. 26, 2006, scale back
-dx=dx*ravefactor
-dy=dy*ravefactor
-w=w/ravefactor
-		
-end subroutine shear_prod3D
+	
+end
 

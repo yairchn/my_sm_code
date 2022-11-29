@@ -5,8 +5,6 @@ subroutine advect_scalar (f,fadv,flux,f2leadv,f2legrad,fwleadv,doit)
 
 use grid
 use vars, only: u, v, w, rho, rhow
-use mse     ! peters
-use params  ! peters
 
 implicit none
 
@@ -19,13 +17,12 @@ real df(dimx1_s:dimx2_s, dimy1_s:dimy2_s, nzm)
 real f0(nzm),df0(nzm),fff(nz),factor
 real coef
 integer i,j,k
-real hadv(nx,ny), vadv(nx,ny), tmphadv(nzm), tmpvadv(nzm)      ! peters
 
 if(docolumn) flux = 0.
 
 if(docolumn) return
 
-if(dostatis .or. (doMSE .and. (mseflag.ne.0)) ) then  ! peters added mseflag
+if(dostatis) then
 	
  df(:,:,:) = f(:,:,:)
 
@@ -36,30 +33,6 @@ if(RUN3D) then
 else
   call advect_scalar2D(f, u, w, rho, rhow, flux)	  
 endif
-
-
-! peters split total advection into horizontal and vertical parts
-if(doMSE .and. (mseflag.ne.0)) then
-  do i=1,nx
-    do j=1,ny
-      tmpvadv = (-f(i,j,:)*div(i,j,:))*dtfactor    ! column of vadv
-      tmphadv = (f(i,j,:)-df(i,j,:))/dtn*dtfactor - tmpvadv  ! column of hadv
-      
-      call columnint(tmpvadv,vadv(i,j))
-      call columnint(tmphadv,hadv(i,j))
-    end do
-  end do
-
-  ! now store the adv terms in the appropriate place
-  select case(mseflag)
-    case(1)             ! update advs
-      vadvs_mse = vadvs_mse + cp*vadv/float(navgMSE)    ! W/m^2
-      hadvs_mse = hadvs_mse + cp*hadv/float(navgMSE)    ! W/m^2
-    case(2)             ! update advh
-      vadvh_mse = vadvh_mse + lcond*vadv/float(navgMSE)    ! W/m^2
-      hadvh_mse = hadvh_mse + lcond*hadv/float(navgMSE)    ! W/m^2
-  end select
-end if   ! end if(doMSE)
 
 
 if(dostatis) then

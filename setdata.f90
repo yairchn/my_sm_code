@@ -2,8 +2,7 @@ subroutine setdata()
 	
 use vars
 use params
-use simple_ocean, only: set_sst, doevolveSSTforcing
-use simple_land                    ! peters
+use simple_ocean, only: set_sst
 implicit none
 	
 integer ndmax,n,i,j,k,iz,it,jt
@@ -16,7 +15,7 @@ real rrr1,rrr2, pres1, pp(ndmax),ta(ndmax)
 real pp1(ndmax)
 real ratio_t1,ratio_t2,ratio_p1,ratio_p2
 real tpert0(ndmax), qpert0(ndmax)
-real latit,long,wrk1,wrk2
+real latit,long
 logical zgrid
 !-------------------------------------------------------------
 !	read subensemble perturbation file first:
@@ -257,130 +256,63 @@ do k=1,nzm
   do i=1,nx
    u(i,j,k)= u0(k)
    v(i,j,k)= v0(k)
+   w(i,j,k)= 0.
    t(i,j,k)= t0(k)
    q(i,j,k)=q0(k)
    tabs(i,j,k)=tabs0(k)
-  end do
- end do
-end do
-
-   w= 0.
-   qn=0.
-   qp=0.
-   tke=0.
-   tk_xy=0.
-   tk_z=0.
-   tkh_xy=0.
-   tkh_z=0.
-   p=0.
-   ttend_cup = 0.
-   qtend_cup = 0.
-   utend_cup = 0.
-   vtend_cup = 0.
-    
-   tkh_x_rf = 0. !JY janniy Yani added
-   tkh_y_rf = 0. !JY janniy Yani added
-   tkh_z_rf = 0. !JY janniy Yani added
-
-       !Fields from the begining of the time step to test forest:
-   u_i = 0.
-   v_i = 0.
-   w_i = 0.
-   t_i = 0.
-   q_i = 0.
-   qp_i = 0.
-!===========================
-! UW ADDITION
-
-if(dokruegermicro) then
-   do k = 1,nzm
-      qv(:,:,k) = qv0(k)
-      qc(:,:,k) = qc0(k)
-      qi(:,:,k) = qi0(k)
-   end do
-   qr = 0.
-   qs = 0.
-   qg = 0.
-end if
-
-! END UW ADDITION
-!===========================
-
-  uwpbl_fluxbu=0.
-  uwpbl_fluxbv=0.
-  uwpbl_fluxbt=0.
-  uwpbl_fluxbq=0.
-  fluxbu=0.
-  fluxbv=0.
-  fluxbt=0.
-  fluxbq=0.
-  fluxtu=0.
-  fluxtv=0.
-  fluxtt=0.
-  fluxtq=0.
-  fzero =0.
-  precsfc=0.
-  prec_xy=0.
-  shf_xy=0.
-  lhf_xy=0.
-  lwns_xy=0.
-  swns_xy=0.
-  lwnt_xy=0.
-  swnt_xy=0.
-  swntm_xy=0.
-  solin_xy=0.
-  lwnsc_xy=0.
-  swnsc_xy=0.
-  lwntc_xy=0.
-  swntc_xy=0.
-  pw_xy=0.
-  cw_xy=0.
-  iw_xy=0.
-  swvp_xy=0.
-  hstor_xy=0.
-  hadv_xy=0.
-  sstor_xy=0.
-  sadv_xy=0.
-  sstxy=0.
-  wmode1_xy = 0.
-  wmode2_xy = 0.
-  qmode1_xy = 0.
-  qmode2_xy = 0.
-  thmode1_xy = 0.
-  thmode2_xy = 0.
-  wmode1i_xy = 0.
-  wmode2i_xy = 0.
-  cloudtopheight = 0.
-  echotopheight = 0.
-  cloudtoptemp = 0.
-	
-do j = 1,ny
+   qn(i,j,k)=0.
+   qp(i,j,k)=0.
+   tke(i,j,k)=0.
+   tk(i,j,k)=0.
+   tkh(i,j,k)=0.
+   p(i,j,k)=0.
+   w(i,j,nz)=0.
+   fluxbu(i,j)=0.
+   fluxbv(i,j)=0.
+   fluxbt(i,j)=0.
+   fluxbq(i,j)=0.
+   fluxtu(i,j)=0.
+   fluxtv(i,j)=0.
+   fluxtt(i,j)=0.
+   fluxtq(i,j)=0.
+   fzero(i,j) =0.
+   precsfc(i,j)=0.
+   prec_xy(i,j)=0.
+   shf_xy(i,j)=0.
+   lhf_xy(i,j)=0.
+   lwns_xy(i,j)=0.
+   swns_xy(i,j)=0.
+   lwnsc_xy(i,j)=0.
+   swnsc_xy(i,j)=0.
+   lwnt_xy(i,j)=0.
+   swnt_xy(i,j)=0.
+   lwntc_xy(i,j)=0.
+   swntc_xy(i,j)=0.
+   solin_xy(i,j)=0.
+   qocean_xy(i,j)=0.
+   u200_xy(i,j) = 0.
+   v200_xy(i,j) = 0.
+   usfc_xy(i,j) = 0.
+   vsfc_xy(i,j) = 0.
+   w500_xy(i,j) = 0.
+   pw_xy(i,j)=0.
+   cw_xy(i,j)=0.
+   iw_xy(i,j)=0.
+   sstxy(i,j)=0.
    fcory(j) = fcor
    fcorzy(j) = fcorz
-end do
-
+   ttend_cup(i,j,k) = 0.
+   qtend_cup(i,j,k) = 0.
+   utend_cup(i,j,k) = 0.
+   vtend_cup(i,j,k) = 0.
+  end do 
+ end do 
+end do 
 
 dudt = 0.
 dvdt = 0.
 dwdt = 0.	   
 tke = 0.
-
-!===========================================================
-! UW ADDITION
-! peters write invariant fields once at beginning of run
-if(nrestart.eq.0 .and. (dolandseamask.or.doxysurf_rough)) then
-  call write_fields_invariant()
-end if
-!===================================
-
-if(.not.dosfcforcing) then
-  if(doevolveSSTforcing) then
-    call set_sstevolveforcing()
-  elseif(.not.(nrestart.eq.1)) then
-    call set_sst()
-  end if
-end if
-
 	
 call setperturb()
 if(doprecip) call precip_init()
@@ -401,61 +333,8 @@ if(doxy) then
    end do
  end do
 
+ call set_sst(ocean_type)
 
-elseif (dobetaplane) then
-
-   call task_rank_to_index(rank,it,jt) 
-
-   !do j=1,ny
-    do j=0,ny !JY added from 0...
-      latit=latitude0+dy*(j+jt-(ny_gl+YES3D-1)/2-0.5)*2.5e-8*360.*sqrt(betafactor)
-      !latit=latitude0+dy*(j+jt-(ny_gl+YES3D-1)/2-1)*2.5e-8*360.! NOTE THAT THERE MIGHT BE AN ERROR HERE IN THE LATIT - JY Yani
-!      fcory(j)= 4.*pi/86400.*sin(latit*pi/180.)*sqrt(betafactor)
-!fcorzy should not be scaled up because the ratio of the troposphere height H to the 
-!rossby radius has not changed.
-!      fcorzy(j) = sqrt(4.*(2*pi/(3600.*24.))**2-fcory(j)**2/betafactor)
-      fcory(j)= 4.*pi/86400./6.37e6*cos(latitude0*pi/180.)*dy &
-           *(float(j+jt-(ny_gl+YES3D-1)/2)-0.5)*betafactor
- 
-      !fcory(j)= 4.*pi/86400./6.37e6*cos(latitude0*pi/180.)*dy &
-        !   *(float(j+jt-(ny_gl+YES3D-1)/2)-1.0)*betafactor !Yani JY modified
-!      print *, 'the coriolis forcing:', (float(j+jt-(ny_gl+YES3D-1)/2)-1.0)*dy, 'the latitudes:', j,jt
-      fcorzy(j) = 0.
-end do !JY
-do j=1,ny
-     latit=latitude0+dy*(j+jt-(ny_gl+YES3D-1)/2-0.5)*2.5e-8*360.*sqrt(betafactor) !JY
-      do i=1,nx
-         if(doDAREradlongitude) then  ! peters
-           long = float(i+it-1)*360.0/float(nx_gl) - 180.
-         else
-           long = longitude0 +dx*(float(i+it-nx_gl/2)-0.5) &
-              *2.5e-8*360.*sqrt(betafactor)
-         end if
-         if(doperpetual .or. doDARErad) then
-            !bloss/peters: always use rescaled lon/lat
-            ! If uniform insolation is desired, use dosolarconstant as well
-            latitude(i,j) = latit
-            longitude(i,j) = long
-         else
-            ! Diurnally-varying insolation will be uniform in space.
-            latitude(i,j) = latitude0
-            longitude(i,j) = longitude0
-         endif
-      end do
-   end do
-
-   if (dowaterbubble) then
-      do j=1,ny
-         wrk1=(float(j+jt-ny_gl/2-1)*10./float(ny_gl))**2
-         do i=1,nx
-            wrk2=(float(i+it-nx_gl/2-1)*10./float(nx_gl))**2
-            do k=1,nzm
-               q(i,j,k)=q(i,j,k)*(1.+0.05*exp(-wrk1-wrk2)*z(k)/3000.*exp(1-z(k)/3000))
-            enddo
-         enddo
-      enddo
-   endif
-   
 else
 
  do j=1,ny

@@ -1,6 +1,6 @@
 
 subroutine oceflx(pmidm1, ubot, vbot, tbot, qbot, thbot, zbot, ts, &
-                  shf, lhf, taux, tauy, ssq, sfcum)
+                  shf, lhf, taux, tauy, ssq)
 
 implicit none	
 
@@ -41,7 +41,6 @@ implicit none
       real thbot   ! Bottom level potential temperature
       real zbot    ! Bottom level height above surface
       real ts      ! Surface temperature
-      real sfcum   ! surface mean wind (kzm)
 !                         
 ! Output arguments        
 !                         
@@ -131,9 +130,7 @@ implicit none
 !---------------------------------------------------------------
 
          rbot = pmidm1*100.  / (287.*tbot )
-!         vmag   = max(umin, sqrt(ubot **2+vbot **2))
-!kzm 11/06/06 added a background wind of sfcum
-         vmag   = max(umin, sqrt((ubot+sfcum) **2+(vbot) **2))
+         vmag   = max(umin, sqrt(ubot **2+vbot **2))
          thvbot = thbot  * (1.0 + 0.606*qbot )
          delt   = thbot  - ts
 	 ssq = qsatw(ts,pmidm1) 

@@ -26,6 +26,7 @@ endif
 call advect2_mom_xy()
 call advect2_mom_z()
 
+
 if(dostatis) then
 	
   do k=1,nzm

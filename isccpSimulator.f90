@@ -1,3 +1,4 @@
+!$Id: isccp_coud_types.f,v 3.4 2003/05/06 08:45:28 hadmw Exp $
 
 ! Copyright Steve Klein and Mark Webb 2002 - all rights reserved.
 !

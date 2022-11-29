@@ -41,12 +41,6 @@ integer nyp22, n_in, count
 integer iii(0:nx_gl),jjj(0:ny_gl)
 logical flag(nsubdomains)
 integer iwall,jwall
-real wrk
-
-wrk=1.
-if(dorave) then
-   wrk=ravefactor*ravefactor
-endif
 
 ! check if the grid size allows the computation:
 
@@ -277,8 +271,8 @@ end do
 !   in the vertical for each subdomain:
 
 do k=1,nzm
-    a(k)=rhow(k)/(adz(k)*adzw(k)*dz*dz)/wrk
-    c(k)=rhow(k+1)/(adz(k)*adzw(k+1)*dz*dz)/wrk
+    a(k)=rhow(k)/(adz(k)*adzw(k)*dz*dz)
+    c(k)=rhow(k+1)/(adz(k)*adzw(k+1)*dz*dz)	 
 end do 
 
 call task_rank_to_index(rank,it,jt)

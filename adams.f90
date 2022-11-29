@@ -23,6 +23,7 @@ do k=1,nzm
   
      dudt(i,j,k,nc) = u(i,j,k) + dt3(na) & 
               *(at*dudt(i,j,k,na)+bt*dudt(i,j,k,nb)+ct*dudt(i,j,k,nc))
+	   
      dvdt(i,j,k,nc) = v(i,j,k) + dt3(na) &
               *(at*dvdt(i,j,k,na)+bt*dvdt(i,j,k,nb)+ct*dvdt(i,j,k,nc))
 	   

@@ -37,27 +37,15 @@ do k=1,nzm
   rdy251=rdy25  * grdf_y(k)
   do j=1,ny
    jb=j-1
-   if(LES) then !bloss  do geometric averaging of tk in vertical
-    do i=0,nx
-     ic=i+1
-     tkx=rdx21*tk_xy(i,j,k)
-     fu(i,j,k)=-2.*tkx*(u(ic,j,k)-u(i,j,k))*ravefactor
-     tkx=rdx251*(tk_xy(i,j,k)+tk_xy(i,jb,k)+tk_xy(ic,j,k)+tk_xy(ic,jb,k))
-     fv(i,j,k)=-tkx*(v(ic,j,k)-v(i,j,k)+(u(ic,j,k)-u(ic,jb,k))*dxy)*ravefactor
-     tkx=2.*rdx251*sqrt((tk_xy(i,j,k)+tk_xy(ic,j,k))*(tk_xy(i,j,kcu)+tk_xy(ic,j,kcu)))
-     fw(i,j,k)=-tkx*((w(ic,j,kc)-w(i,j,kc))*ravefactor+(u(ic,j,kcu)-u(ic,j,k))*dxz/ravefactor)
-    end do 
-   else
-    do i=0,nx
-     ic=i+1
-     tkx=rdx21*tk_xy(i,j,k)
-     fu(i,j,k)=-2.*tkx*(u(ic,j,k)-u(i,j,k))*ravefactor
-     tkx=rdx251*(tk_xy(i,j,k)+tk_xy(i,jb,k)+tk_xy(ic,j,k)+tk_xy(ic,jb,k))
-     fv(i,j,k)=-tkx*(v(ic,j,k)-v(i,j,k)+(u(ic,j,k)-u(ic,jb,k))*dxy)*ravefactor
-     tkx=rdx251*(tk_xy(i,j,k)+tk_xy(ic,j,k)+tk_xy(i,j,kcu)+tk_xy(ic,j,kcu)) 	
-     fw(i,j,k)=-tkx*((w(ic,j,kc)-w(i,j,kc))*ravefactor+(u(ic,j,kcu)-u(ic,j,k))*dxz/ravefactor)
-    end do 
-   end if
+   do i=0,nx
+    ic=i+1
+    tkx=rdx21*tk(i,j,k)
+    fu(i,j,k)=-2.*tkx*(u(ic,j,k)-u(i,j,k))
+    tkx=rdx251*(tk(i,j,k)+tk(i,jb,k)+tk(ic,j,k)+tk(ic,jb,k))
+    fv(i,j,k)=-tkx*(v(ic,j,k)-v(i,j,k)+(u(ic,j,k)-u(ic,jb,k))*dxy)
+    tkx=rdx251*(tk(i,j,k)+tk(ic,j,k)+tk(i,j,kcu)+tk(ic,j,kcu)) 	
+    fw(i,j,k)=-tkx*(w(ic,j,kc)-w(i,j,kc)+(u(ic,j,kcu)-u(ic,j,k))*dxz)
+   end do 
    do i=1,nx
     ib=i-1
     dudt(i,j,k,na)=dudt(i,j,k,na)-(fu(i,j,k)-fu(ib,j,k))
@@ -68,27 +56,15 @@ do k=1,nzm
 
   do j=0,ny
    jc=j+1
-   if(LES) then !bloss  do geometric averaging of tk in vertical
-    do i=1,nx
-     ib=i-1
-     tky=rdy21*tk_xy(i,j,k)
-     fv(i,j,k)=-2.*tky*(v(i,jc,k)-v(i,j,k))*ravefactor
-     tky=rdy251*(tk_xy(i,j,k)+tk_xy(ib,j,k)+tk_xy(i,jc,k)+tk_xy(ib,jc,k))
-     fu(i,j,k)=-tky*(u(i,jc,k)-u(i,j,k)+(v(i,jc,k)-v(ib,jc,k))*dyx)*ravefactor
-     tky=2.*rdy251*sqrt((tk_xy(i,j,k)+tk_xy(i,jc,k))*(tk_xy(i,j,kcu)+tk_xy(i,jc,kcu)))
-     fw(i,j,k)=-tky*((w(i,jc,kc)-w(i,j,kc))*ravefactor+(v(i,jc,kcu)-v(i,jc,k))*dyz/ravefactor)
-    end do 
-   else
-    do i=1,nx
-     ib=i-1
-     tky=rdy21*tk_xy(i,j,k)
-     fv(i,j,k)=-2.*tky*(v(i,jc,k)-v(i,j,k))*ravefactor
-     tky=rdy251*(tk_xy(i,j,k)+tk_xy(ib,j,k)+tk_xy(i,jc,k)+tk_xy(ib,jc,k))
-     fu(i,j,k)=-tky*(u(i,jc,k)-u(i,j,k)+(v(i,jc,k)-v(ib,jc,k))*dyx)*ravefactor
-     tky=rdy251*(tk_xy(i,j,k)+tk_xy(i,jc,k)+tk_xy(i,j,kcu)+tk_xy(i,jc,kcu)) 	
-     fw(i,j,k)=-tky*((w(i,jc,kc)-w(i,j,kc))*ravefactor+(v(i,jc,kcu)-v(i,jc,k))*dyz/ravefactor)
-    end do 
-   end if
+   do i=1,nx
+    ib=i-1
+    tky=rdy21*tk(i,j,k)
+    fv(i,j,k)=-2.*tky*(v(i,jc,k)-v(i,j,k))
+    tky=rdy251*(tk(i,j,k)+tk(ib,j,k)+tk(i,jc,k)+tk(ib,jc,k))
+    fu(i,j,k)=-tky*(u(i,jc,k)-u(i,j,k)+(v(i,jc,k)-v(ib,jc,k))*dyx)
+    tky=rdy251*(tk(i,j,k)+tk(i,jc,k)+tk(i,j,kcu)+tk(i,jc,kcu)) 	
+    fw(i,j,k)=-tky*(w(i,jc,kc)-w(i,j,kc)+(v(i,jc,kcu)-v(i,jc,k))*dyz)
+   end do 
   end do 
   do j=1,ny
     jb=j-1
@@ -113,43 +89,23 @@ do k=1,nzm-1
  iadz = 1./adz(k)
  iadzw= 1./adzw(kc)
  rdz2 = rdz*rdz * grdf_z(k)
- if(LES) then !bloss  do geometric averaging of tk in vertical
-   rdz25 = 0.5*rdz2
-   do j=1,ny
-    jb=j-1
-    do i=1,nx
-     ib=i-1
-     tkz=rdz2*tk_z(i,j,k)
-     fw(i,j,kc)=-2.*tkz*(w(i,j,kc)-w(i,j,k))*rho(k)*iadz/ravefactor
-     tkz=rdz25*sqrt((tk_z(i,j,k)+tk_z(ib,j,k))*(tk_z(i,j,kc)+tk_z(ib,j,kc)))
-     fu(i,j,kc)=-tkz*( (u(i,j,kc)-u(i,j,k))*iadzw/ravefactor + &
-                        (w(i,j,kc)-w(ib,j,kc))*dzx*ravefactor)*rhow(kc) 	
-     tkz=rdz25*sqrt((tk_z(i,j,k)+tk_z(i,jb,k))*(tk_z(i,j,kc)+tk_z(i,jb,kc)))
-     fv(i,j,kc)=-tkz*( (v(i,j,kc)-v(i,j,k))*iadzw/ravefactor + &
-                        (w(i,j,kc)-w(i,jb,kc))*dzy*ravefactor)*rhow(kc)
-     uwsb(kc)=uwsb(kc)+fu(i,j,kc)
-     vwsb(kc)=vwsb(kc)+fv(i,j,kc)
-   end do 
-  end do
- else
-   rdz25 = 0.25*rdz2
-   do j=1,ny
-    jb=j-1
-    do i=1,nx
-     ib=i-1
-     tkz=rdz2*tk_z(i,j,k)
-     fw(i,j,kc)=-2.*tkz*(w(i,j,kc)-w(i,j,k))*rho(k)*iadz/ravefactor
-     tkz=rdz25*(tk_z(i,j,k)+tk_z(ib,j,k)+tk_z(i,j,kc)+tk_z(ib,j,kc))
-     fu(i,j,kc)=-tkz*( (u(i,j,kc)-u(i,j,k))*iadzw/ravefactor + &
-                        (w(i,j,kc)-w(ib,j,kc))*dzx*ravefactor)*rhow(kc) 	
-     tkz=rdz25*(tk_z(i,j,k)+tk_z(i,jb,k)+tk_z(i,j,kc)+tk_z(i,jb,kc))
-     fv(i,j,kc)=-tkz*( (v(i,j,kc)-v(i,j,k))*iadzw/ravefactor + &
-                        (w(i,j,kc)-w(i,jb,kc))*dzy*ravefactor)*rhow(kc)
-     uwsb(kc)=uwsb(kc)+fu(i,j,kc)
-     vwsb(kc)=vwsb(kc)+fv(i,j,kc)
-   end do 
-  end do
- end if
+ rdz25 = 0.25*rdz2
+  do j=1,ny
+   jb=j-1
+   do i=1,nx
+    ib=i-1
+    tkz=rdz2*tk(i,j,k)
+    fw(i,j,kc)=-2.*tkz*(w(i,j,kc)-w(i,j,k))*rho(k)*iadz
+    tkz=rdz25*(tk(i,j,k)+tk(ib,j,k)+tk(i,j,kc)+tk(ib,j,kc))
+    fu(i,j,kc)=-tkz*( (u(i,j,kc)-u(i,j,k))*iadzw + &
+                       (w(i,j,kc)-w(ib,j,kc))*dzx)*rhow(kc) 	
+    tkz=rdz25*(tk(i,j,k)+tk(i,jb,k)+tk(i,j,kc)+tk(i,jb,kc))
+    fv(i,j,kc)=-tkz*( (v(i,j,kc)-v(i,j,k))*iadzw + &
+                       (w(i,j,kc)-w(i,jb,kc))*dzy)*rhow(kc)
+    uwsb(kc)=uwsb(kc)+fu(i,j,kc)
+    vwsb(kc)=vwsb(kc)+fv(i,j,kc)
+  end do 
+ end do
 end do
 
 uwsb(1) = 0.
@@ -157,12 +113,10 @@ vwsb(1) = 0.
 	
 do j=1,ny
  do i=1,nx
-   tkz=rdz2*grdf_z(nzm)*tk_z(i,j,nzm)
-   fw(i,j,nz)=-2.*tkz*(w(i,j,nz)-w(i,j,nzm))/adz(nzm)*rho(nzm)/ravefactor
-!!$   fu(i,j,1)=(fluxbu(i,j)) * rdz * rhow(1)
-!!$   fv(i,j,1)=(fluxbv(i,j)) * rdz * rhow(1)
-   fu(i,j,1)=(fluxbu(i,j)-uwpbl_fluxbu(i,j)) * rdz * rhow(1)
-   fv(i,j,1)=(fluxbv(i,j)-uwpbl_fluxbv(i,j)) * rdz * rhow(1)
+   tkz=rdz2*grdf_z(nzm)*tk(i,j,nzm)
+   fw(i,j,nz)=-2.*tkz*(w(i,j,nz)-w(i,j,nzm))/adz(nzm)*rho(nzm)
+   fu(i,j,1)=fluxbu(i,j) * rdz * rhow(1)
+   fv(i,j,1)=fluxbv(i,j) * rdz * rhow(1)
    fu(i,j,nz)=fluxtu(i,j) * rdz * rhow(nz)
    fv(i,j,nz)=fluxtv(i,j) * rdz * rhow(nz)
    uwsb(1) = uwsb(1) + fu(i,j,1)

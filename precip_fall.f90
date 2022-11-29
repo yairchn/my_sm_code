@@ -5,8 +5,6 @@ subroutine precip_fall
 
 use vars
 use params
-use mse, only : prec_inst_mse, doMSE, prec_inst_frozen_mse  ! peters
-use microscaling
 implicit none
  	
 real mx(nzm),mn(nzm)
@@ -22,25 +20,16 @@ real vrain, vsnow, vgrau, crain, csnow, cgrau
 real lfac(nz), qrr, qss, qgg
 real pp,pn, lat_heat
 real wmax, omp, omg
-real dtn_old
 
 real wp(nzm), tmp_qp(nzm), irhoadz(nzm), iwmax(nzm), rhofac(nzm), prec_cfl
 integer nprec, iprec
-real fac_frozen, fac_total ! peters
 
 pp(y)= max(0.,y)
 pn(y)=-min(0.,y)
 
 
 !--------------------------------------------------------
-dtn_old = dtn
 
-if(dokruegermicro) then
-   call precip_fall_krueger()
-   return
-end if
-
-if(dobetafactor.and.daremicrophysics.and..not.domicroscaling) dtn=dtn*mpbetafactor**0.5
 
 eps = 1.e-10
 nonos = .true.
@@ -53,11 +42,6 @@ vsnow = a_snow * gams3 / 6. / (pi * rhos * nzeros) ** csnow
 vgrau = a_grau * gamg3 / 6. / (pi * rhog * nzerog) ** cgrau
 
 ! Initialize arrays that accumulate surface precipitation flux
-
- if(doMSE) then
-    prec_inst_mse = 0.   !peters, need to accumulate over iprec steps
-    prec_inst_frozen_mse = 0.
- end if
 
  if(mod(nstep-1,nstatis).eq.0.and.icycle.eq.1) then
    do j=1,ny
@@ -92,16 +76,9 @@ do j=1,ny
       
       prec_cfl = 0.
       do k=1,nzm
-
-	if(domicroscaling) dtn = dtn_scaled(i,j,k)	 
-
          wp(k)=0.
          omp = max(0.,min(1.,(tabs(i,j,k)-tprmin)*a_pr))
          lfac(k) = fac_cond+(1.-omp)*fac_fus
-         if(k.eq.1) then      ! peters
-           fac_frozen = (1.-omp)*lfus
-           fac_total = omp*lcond + (1.-omp)*lfus
-         end if
          if(qp(i,j,k).gt.qp_threshold) then
             if(omp.eq.1.) then
                wp(k)= rhofac(k)*vrain*(rho(k)*qp(i,j,k))**crain
@@ -132,11 +109,8 @@ do j=1,ny
 
       ! If maximum CFL due to precipitation velocity is greater than 0.9,
       ! take more than one advection step to maintain stability.
-!      if (prec_cfl.gt.0.9) then
-!         nprec = CEILING(prec_cfl/0.9)
-!zhiming
-      if (prec_cfl.gt.0.3) then
-         nprec = CEILING(prec_cfl/0.3)
+      if (prec_cfl.gt.0.9) then
+         nprec = CEILING(prec_cfl/0.9)
          do k = 1,nzm
             ! wp already includes factor of dt, so reduce it by a
             ! factor equal to the number of precipitation steps.
@@ -222,9 +196,6 @@ do j=1,ny
          ! Update precipitation mass fraction and liquid-ice static
          ! energy using precipitation fluxes computed in this column.
          do k=1,nzm
-            
-        if(domicroscaling) dtn = dtn_scaled(i,j,k)	 
-
             kc=k+1
             ! Update precipitation mass fraction.
             ! Note that fz is the total flux, including both the
@@ -238,27 +209,14 @@ do j=1,ny
          end do
          precsfc(i,j) = precsfc(i,j) - fz(1) ! For statistics
          prec_xy(i,j) = prec_xy(i,j) - fz(1) ! For 2D output
-         prec_inst(i,j) = -fz(1)*float(nprec)*dz/dtn
-         if(doMSE) then ! peters
-            prec_inst_mse(i,j) = prec_inst_mse(i,j) - fac_total*fz(1)
-            prec_inst_frozen_mse(i,j) = prec_inst_frozen_mse(i,j) &
-                                         - fac_frozen*fz(1)
-         end if
 
          if (iprec.lt.nprec) then
 
             ! Re-compute precipitation velocity using new value of qp.
             do k=1,nzm
-
-	if(domicroscaling) dtn = dtn_scaled(i,j,k)	 
-
                wp(k)=0.
                omp = max(0.,min(1.,(tabs(i,j,k)-tprmin)*a_pr))
                lfac(k) = fac_cond+(1.-omp)*fac_fus
-               if(k.eq.1) then      ! peters
-                 fac_frozen = (1.-omp)*lfus
-                 fac_total = omp*lcond + (1.-omp)*lfus
-               end if
                if(qp(i,j,k).gt.qp_threshold) then
                   if(omp.eq.1.) then
                      wp(k)= rhofac(k)*vrain*(rho(k)*qp(i,j,k))**crain
@@ -297,7 +255,7 @@ do j=1,ny
 
   end do
 end do	
-
+	 
 if(dostatis) then
 
  do k=1,nzm
@@ -328,7 +286,7 @@ if(dostatis) then
 endif
 
 
-dtn = dtn_old
+
 end subroutine precip_fall
 
 

@@ -1,13 +1,10 @@
-subroutine diffuse_scalar3D (field,fluxb,fluxt,tkh_xy,tkh_z,rho,rhow,flux)
+subroutine diffuse_scalar3D (field,fluxb,fluxt,tkh,rho,rhow,flux)
 
 use grid
 implicit none
 ! input	
 real field(dimx1_s:dimx2_s, dimy1_s:dimy2_s, nzm)	! scalar
-real tkh_xy(0:nxp1,1-YES3D:nyp1,nzm)	! horizontal eddy conductivity
-real tkh_z(0:nxp1,1-YES3D:nyp1,nzm)	! vertical eddy conductivity
-! changed by cw
-!real tkh_z(0:nxp1,1-YES3D:nyp1,nz)	! vertical eddy conductivity
+real tkh(0:nxp1,1-YES3D:nyp1,nzm)	! eddy conductivity
 real fluxb(nx,ny)		! bottom flux
 real fluxt(nx,ny)		! top flux
 real rho(nzm)
@@ -67,7 +64,7 @@ if(dowally) then
   end if
   if(rank.gt.nsubdomains-nsubdomains_x-1) then
     do k=1,nzm
-       do i=1,nx
+       do i=1,ny
          field(i,ny+YES3D,k) = field(i,ny,k)
        end do
     end do
@@ -75,26 +72,27 @@ if(dowally) then
 
 end if
 
-!!$if(dowally) then
-!!$
-!!$ call task_rank_to_index(rank, ib, jb)
-!!$ write(*,*) 'Rank, ib, jb = ', rank, ib, jb
-!!$ if(jb.eq.0) then
-!!$   do k=1,nzm
-!!$     do i=1,nx
-!!$       field(i,1-YES3D,k) = field(i,1,k)
-!!$     end do
-!!$   end do
-!!$ end if
-!!$ if(jb.eq.nsubdomains_y-1) then
-!!$   do k=1,nzm
-!!$     do i=1,nx
-!!$       field(i,ny+YES3D,k) = field(i,ny,k)
-!!$     end do
-!!$   end do
-!!$ end if
-!!$
-!!$end if
+
+
+if(dowally) then
+
+ call task_rank_to_index(rank, ib, jb)
+ if(jb.eq.0) then
+   do k=1,nzm
+     do i=1,nx
+       field(i,1-YES3D,k) = field(i,1,k)
+     end do
+   end do
+ end if
+ if(jb.eq.nsubdomains_y-1) then
+   do k=1,nzm
+     do i=1,nx
+       field(i,ny+YES3D,k) = field(i,ny,k)
+     end do
+   end do
+ end if
+
+end if
 
 !-----------------------------------------
 
@@ -110,8 +108,8 @@ do k=1,nzm
  do j=1,ny
   do i=0,nx
     ic=i+1
-    tkx=rdx5*(tkh_xy(i,j,k)+tkh_xy(ic,j,k)) 	
-    flx(i,j,k)=-tkx*(field(ic,j,k)-field(i,j,k))*ravefactor
+    tkx=rdx5*(tkh(i,j,k)+tkh(ic,j,k)) 	
+    flx(i,j,k)=-tkx*(field(ic,j,k)-field(i,j,k))
   end do 
   do i=1,nx
     ib=i-1
@@ -122,8 +120,8 @@ do k=1,nzm
  do j=0,ny
   jc=j+1
   do i=1,nx
-   tky=rdy5*(tkh_xy(i,j,k)+tkh_xy(i,jc,k)) 	
-   flx(i,j,k)=-tky*(field(i,jc,k)-field(i,j,k))*ravefactor
+   tky=rdy5*(tkh(i,j,k)+tkh(i,jc,k)) 	
+   flx(i,j,k)=-tky*(field(i,jc,k)-field(i,j,k))
   end do 
  end do
  do j=1,ny
@@ -134,6 +132,7 @@ do k=1,nzm
  end do 
  
 end do ! k
+
 
 !  Vertical diffusion:
 
@@ -146,39 +145,21 @@ do j=1,ny
    flux(1) = flux(1) + flx(i,j,0)
  end do
 end do
-if(LES) then !bloss  use geometric average of tkh in vertical: sqrt(tkh*tkhc)
 
- do k=1,nzm-1
-  kc=k+1	
-  flux(kc)=0. 
-  rhoi = rhow(kc)/adzw(kc)
-  rdz5=rdz2 * grdf_z(k)
-  do j=1,ny
-   do i=1,nx
-     tkz=rdz5*sqrt(tkh_z(i,j,k)*tkh_z(i,j,kc))
-     flx(i,j,k)=-tkz*(field(i,j,kc)-field(i,j,k))*rhoi/ravefactor
-     flux(kc) = flux(kc) + flx(i,j,k)
-   end do 
-  end do
+
+do k=1,nzm-1
+ kc=k+1	
+ flux(kc)=0. 
+ rhoi = rhow(kc)/adzw(kc)
+ rdz5=0.5*rdz2 * grdf_z(k)
+ do j=1,ny
+  do i=1,nx
+    tkz=rdz5*(tkh(i,j,k)+tkh(i,j,kc))
+    flx(i,j,k)=-tkz*(field(i,j,kc)-field(i,j,k))*rhoi
+    flux(kc) = flux(kc) + flx(i,j,k)
+  end do 
  end do
-
-else !bloss  use simple average of tkh in vertical: (tkh+tkhc)/2
-
- do k=1,nzm-1
-  kc=k+1	
-  flux(kc)=0. 
-  rhoi = rhow(kc)/adzw(kc)
-  rdz5=0.5*rdz2 * grdf_z(k)
-  do j=1,ny
-   do i=1,nx
-     tkz=rdz5*(tkh_z(i,j,k)+tkh_z(i,j,kc))
-     flx(i,j,k)=-tkz*(field(i,j,kc)-field(i,j,k))*rhoi/ravefactor
-     flux(kc) = flux(kc) + flx(i,j,k)
-   end do 
-  end do
- end do
-
-end if
+end do
 
 do k=1,nzm
  kb=k-1

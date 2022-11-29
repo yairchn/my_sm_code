@@ -69,7 +69,7 @@ do j=1,ny
  FTHRL(nzm)=FTHRL(nzm-1)
  
  do k=1,nzm 
-  t(i,j,k) = t(i,j,k) + FTHRL(k) * dt
+  t(i,j,k) = t(i,j,k) + FTHRL(k) * dtn
   radlwdn(k) = radlwdn(k) + flux(k) 
   radqrlw(k) = radqrlw(k) + FTHRL(k)
  enddo
